@@ -1,6 +1,7 @@
 import { StatsCards } from "@/components/StatsCards";
 import { SpendChart } from "@/components/SpendChart";
 import { ActionCenter } from "@/components/ActionCenter";
+import { FileUpload } from "@/components/FileUpload";
 import { useSpend } from "@/context/SpendContext";
 import { Database, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,16 @@ const EmptyState = () => {
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-semibold">SpendGuard AI</h1>
         <p className="text-sm text-muted-foreground max-w-md">
-          Autonomous expense auditor. Load sample data to see anomaly detection, duplicate flagging, and cost-cutting recommendations in action.
+          Autonomous expense auditor. Upload your transaction data or load sample data to see anomaly detection, duplicate flagging, and cost-cutting recommendations.
         </p>
+      </div>
+      <div className="w-full max-w-md">
+        <FileUpload />
+      </div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px w-8 bg-border" />
+        or
+        <span className="h-px w-8 bg-border" />
       </div>
       <Button onClick={loadSeedData} size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
         <Database className="h-4 w-4" />
@@ -33,10 +42,13 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">Overview</h1>
-        <p className="text-sm text-muted-foreground">Spending audit summary</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">Overview</h1>
+          <p className="text-sm text-muted-foreground">Spending audit summary</p>
+        </div>
       </div>
+      <FileUpload />
       <StatsCards />
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
