@@ -1,6 +1,7 @@
 import { StatsCards } from "@/components/StatsCards";
 import { SpendChart } from "@/components/SpendChart";
 import { ActionCenter } from "@/components/ActionCenter";
+import { FileUpload } from "@/components/FileUpload";
 import { useSpend } from "@/context/SpendContext";
 import { Database, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,10 +34,13 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">Overview</h1>
-        <p className="text-sm text-muted-foreground">Spending audit summary</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">Overview</h1>
+          <p className="text-sm text-muted-foreground">Spending audit summary</p>
+        </div>
       </div>
+      <FileUpload />
       <StatsCards />
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
