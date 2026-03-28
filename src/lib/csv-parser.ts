@@ -32,8 +32,9 @@ export function parseCSV(text: string): Transaction[] {
     const cols = parseCSVLine(line);
 
     const date = colMap.date >= 0 ? cols[colMap.date]?.trim() : "";
-    const vendor = colMap.vendor >= 0 ? cols[colMap.vendor]?.trim() : "Unknown";
-    const category = colMap.category >= 0 ? cols[colMap.category]?.trim() : "General";
+    const vendor = colMap.vendor >= 0 ? cols[colMap.vendor]?.trim().replace(/^(Paid to |Received from )/i, "") : "Unknown";
+    const txnType = colMap.type >= 0 ? cols[colMap.type]?.trim().toUpperCase() : "";
+    const category = colMap.category >= 0 ? cols[colMap.category]?.trim() : (txnType === "CREDIT" ? "Income" : "General");
     const department = colMap.department >= 0 ? cols[colMap.department]?.trim() : "General";
     const amountStr = colMap.amount >= 0 ? cols[colMap.amount]?.trim() : "0";
 
