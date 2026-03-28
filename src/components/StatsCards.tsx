@@ -1,4 +1,4 @@
-import { DollarSign, AlertTriangle, TrendingDown, CreditCard } from "lucide-react";
+import { IndianRupee, AlertTriangle, TrendingDown, CreditCard } from "lucide-react";
 import { useSpend } from "@/context/SpendContext";
 
 const StatCard = ({ title, value, subtitle, icon: Icon, accent }: {
@@ -32,9 +32,9 @@ export const StatsCards = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         title="Total Spend"
-        value={`$${totalSpend.toLocaleString()}`}
+        value={`₹${totalSpend.toLocaleString()}`}
         subtitle="This period"
-        icon={DollarSign}
+        icon={IndianRupee}
         accent="bg-primary/10 text-primary"
       />
       <StatCard
@@ -46,7 +46,7 @@ export const StatsCards = () => {
       />
       <StatCard
         title="Potential Savings"
-        value={`$${potentialSavings.toLocaleString()}`}
+        value={`₹${potentialSavings.toLocaleString()}`}
         subtitle="Annual estimate"
         icon={TrendingDown}
         accent="bg-success/10 text-success"

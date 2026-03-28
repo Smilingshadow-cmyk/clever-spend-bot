@@ -50,7 +50,7 @@ export const AuditTable = () => {
                   <TableCell className="text-sm font-medium">{t.vendor}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{t.category}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{t.department}</TableCell>
-                  <TableCell className="text-sm font-mono text-right">${t.amount.toLocaleString()}</TableCell>
+                  <TableCell className="text-sm font-mono text-right">₹{t.amount.toLocaleString()}</TableCell>
                   <TableCell>
                     <span className={`text-xs font-medium uppercase ${riskColors[t.riskLevel]}`}>
                       {t.riskLevel}

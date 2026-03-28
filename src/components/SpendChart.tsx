@@ -18,7 +18,7 @@ export const SpendChart = () => {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 20%, 18%)" />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(215, 15%, 55%)" />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(222, 25%, 11%)",
@@ -26,7 +26,7 @@ export const SpendChart = () => {
                 borderRadius: "8px",
                 fontSize: 13,
               }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, "Spend"]}
+              formatter={(value: number) => [`₹${value.toLocaleString()}`, "Spend"]}
             />
             <Area type="monotone" dataKey="amount" stroke="hsl(157, 72%, 40%)" strokeWidth={2} fill="url(#spendGradient)" />
           </AreaChart>
