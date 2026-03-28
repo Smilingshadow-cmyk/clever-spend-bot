@@ -13,6 +13,7 @@ interface SpendContextType {
   loadSeedData: () => void;
   updateSettings: (s: AuditSettings) => void;
   clearData: () => void;
+  importTransactions: (txns: Transaction[]) => void;
 }
 
 const SpendContext = createContext<SpendContextType | null>(null);
@@ -58,8 +59,26 @@ export const SpendProvider = ({ children }: { children: ReactNode }) => {
     setIsLoaded(false);
   }, []);
 
+  const importTransactions = useCallback((txns: Transaction[]) => {
+    const audited = runAudit(txns, settings);
+    setTransactions(audited);
+    setSuggestions(generateSuggestions(audited));
+    // Generate monthly/category spend from imported data
+    const monthMap: Record<string, number> = {};
+    const catMap: Record<string, { amount: number; department: string }> = {};
+    audited.forEach((t) => {
+      const month = new Date(t.date).toLocaleString("default", { month: "short" });
+      monthMap[month] = (monthMap[month] || 0) + t.amount;
+      if (!catMap[t.category]) catMap[t.category] = { amount: 0, department: t.department };
+      catMap[t.category].amount += t.amount;
+    });
+    setMonthlySpend(Object.entries(monthMap).map(([month, amount]) => ({ month, amount })));
+    setCategorySpend(Object.entries(catMap).map(([category, { amount, department }]) => ({ category, amount, department })));
+    setIsLoaded(true);
+  }, [settings]);
+
   return (
-    <SpendContext.Provider value={{ transactions, suggestions, monthlySpend, categorySpend, settings, isLoaded, loadSeedData, updateSettings, clearData }}>
+    <SpendContext.Provider value={{ transactions, suggestions, monthlySpend, categorySpend, settings, isLoaded, loadSeedData, updateSettings, clearData, importTransactions }}>
       {children}
     </SpendContext.Provider>
   );
