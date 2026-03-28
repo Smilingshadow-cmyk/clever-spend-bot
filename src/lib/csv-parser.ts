@@ -16,8 +16,9 @@ export function parseCSV(text: string): Transaction[] {
 
   const colMap = {
     date: headers.findIndex((h) => ["date", "transaction_date", "trans_date", "txn_date"].includes(h)),
-    vendor: headers.findIndex((h) => ["vendor", "merchant", "payee", "name", "description"].includes(h)),
-    category: headers.findIndex((h) => ["category", "type", "expense_type", "expense_category"].includes(h)),
+    vendor: headers.findIndex((h) => ["vendor", "merchant", "payee", "name", "description", "transaction details", "transaction_details"].includes(h)),
+    category: headers.findIndex((h) => ["category", "expense_type", "expense_category"].includes(h)),
+    type: headers.findIndex((h) => ["type"].includes(h)),
     department: headers.findIndex((h) => ["department", "dept", "team", "cost_center"].includes(h)),
     amount: headers.findIndex((h) => ["amount", "total", "cost", "value", "price"].includes(h)),
   };
