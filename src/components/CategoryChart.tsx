@@ -24,7 +24,7 @@ export const CategoryChart = () => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={categorySpend} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 20%, 18%)" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+            <XAxis type="number" tick={{ fontSize: 11 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
             <YAxis type="category" dataKey="category" tick={{ fontSize: 11 }} stroke="hsl(215, 15%, 55%)" width={100} />
             <Tooltip
               contentStyle={{
@@ -33,7 +33,7 @@ export const CategoryChart = () => {
                 borderRadius: "8px",
                 fontSize: 13,
               }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, "Amount"]}
+              formatter={(value: number) => [`₹${value.toLocaleString()}`, "Amount"]}
             />
             <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={18}>
               {categorySpend.map((_, i) => (

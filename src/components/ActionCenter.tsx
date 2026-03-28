@@ -30,7 +30,7 @@ export const ActionCenter = () => {
             </div>
             <div className="text-right shrink-0">
               <p className="text-sm font-semibold font-mono text-primary">
-                ${s.savingsAmount.toLocaleString()}
+                ${`₹${s.savingsAmount.toLocaleString()}`}
               </p>
               <p className="text-[10px] text-muted-foreground uppercase">{s.priority} priority</p>
             </div>
@@ -41,7 +41,7 @@ export const ActionCenter = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Total Potential Savings</span>
           <span className="text-lg font-bold font-mono text-primary">
-            ${suggestions.reduce((s, sg) => s + sg.savingsAmount, 0).toLocaleString()}/yr
+            ₹{suggestions.reduce((s, sg) => s + sg.savingsAmount, 0).toLocaleString()}/yr
           </span>
         </div>
       </div>
