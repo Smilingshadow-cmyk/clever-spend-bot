@@ -16,8 +16,9 @@ export function parseCSV(text: string): Transaction[] {
 
   const colMap = {
     date: headers.findIndex((h) => ["date", "transaction_date", "trans_date", "txn_date"].includes(h)),
-    vendor: headers.findIndex((h) => ["vendor", "merchant", "payee", "name", "description"].includes(h)),
-    category: headers.findIndex((h) => ["category", "type", "expense_type", "expense_category"].includes(h)),
+    vendor: headers.findIndex((h) => ["vendor", "merchant", "payee", "name", "description", "transaction details", "transaction_details"].includes(h)),
+    category: headers.findIndex((h) => ["category", "expense_type", "expense_category"].includes(h)),
+    type: headers.findIndex((h) => ["type"].includes(h)),
     department: headers.findIndex((h) => ["department", "dept", "team", "cost_center"].includes(h)),
     amount: headers.findIndex((h) => ["amount", "total", "cost", "value", "price"].includes(h)),
   };
@@ -31,8 +32,9 @@ export function parseCSV(text: string): Transaction[] {
     const cols = parseCSVLine(line);
 
     const date = colMap.date >= 0 ? cols[colMap.date]?.trim() : "";
-    const vendor = colMap.vendor >= 0 ? cols[colMap.vendor]?.trim() : "Unknown";
-    const category = colMap.category >= 0 ? cols[colMap.category]?.trim() : "General";
+    const vendor = colMap.vendor >= 0 ? cols[colMap.vendor]?.trim().replace(/^(Paid to |Received from )/i, "") : "Unknown";
+    const txnType = colMap.type >= 0 ? cols[colMap.type]?.trim().toUpperCase() : "";
+    const category = colMap.category >= 0 ? cols[colMap.category]?.trim() : (txnType === "CREDIT" ? "Income" : "General");
     const department = colMap.department >= 0 ? cols[colMap.department]?.trim() : "General";
     const amountStr = colMap.amount >= 0 ? cols[colMap.amount]?.trim() : "0";
 
