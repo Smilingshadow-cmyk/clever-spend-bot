@@ -2,6 +2,7 @@ import { StatsCards } from "@/components/StatsCards";
 import { SpendChart } from "@/components/SpendChart";
 import { ActionCenter } from "@/components/ActionCenter";
 import { FileUpload } from "@/components/FileUpload";
+import { BankConnect } from "@/components/BankConnect";
 import { useSpend } from "@/context/SpendContext";
 import { Database, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,10 @@ const Dashboard = () => {
           <p className="text-sm text-muted-foreground">Spending audit summary</p>
         </div>
       </div>
-      <FileUpload />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FileUpload />
+        <BankConnect />
+      </div>
       <StatsCards />
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
