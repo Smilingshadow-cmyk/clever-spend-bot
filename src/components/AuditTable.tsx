@@ -1,13 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSpend } from "@/context/SpendContext";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import { TransactionStatus, RiskLevel } from "@/lib/types";
-import { Category, loadCategories, loadOverrides, saveOverrides, categorizeTransaction, getCategoryById } from "@/utils/categories";
-import { CategoryReviewBanner } from "@/components/CategoryReviewBanner";
 
 const statusConfig: Record<TransactionStatus, { label: string; className: string }> = {
   clean: { label: "Clean", className: "bg-success/10 text-success border-success/20" },
@@ -23,111 +19,114 @@ const riskColors: Record<RiskLevel, string> = {
   high: "text-destructive",
 };
 
-interface Props {
-  categories: Category[];
-  showReviewBanner?: boolean;
-  onRecategorize?: () => void;
+// ── Inline popover for status notes (replaces clipping tooltip) ─────
+function StatusNotePopover({ note }: { note: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative inline-flex">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="p-0.5 rounded hover:bg-muted transition-colors focus:outline-none focus:ring-1 focus:ring-primary/50"
+        title="View details"
+      >
+        <AlertCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+      </button>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          {/* Popover */}
+          <div className="absolute bottom-full right-0 mb-2 z-50 w-[280px] glass-card rounded-lg border border-border shadow-xl p-3 animate-in zoom-in-95 duration-100">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold">AI Note</span>
+              <button onClick={() => setOpen(false)} className="p-0.5 rounded hover:bg-muted transition-colors">
+                <X className="h-3 w-3 text-muted-foreground" />
+              </button>
+            </div>
+            <p className="text-xs text-foreground/80 leading-relaxed">{note}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
-export const AuditTable = ({ categories, showReviewBanner = false, onRecategorize }: Props) => {
-  const { transactions } = useSpend();
-  const [overrides, setOverrides] = useState<Record<string, string>>(loadOverrides());
-  const [dismissed, setDismissed] = useState(false);
+export const AuditTable = () => {
+  const { transactions, currency, ledgerCategories } = useSpend();
 
-  const categorization = useMemo(() => {
-    const result: Record<string, { categoryId: string; confidence: "high" | "low" }> = {};
-    transactions.forEach(t => {
-      if (overrides[t.id]) {
-        result[t.id] = { categoryId: overrides[t.id], confidence: "high" };
-      } else {
-        result[t.id] = categorizeTransaction(t.vendor, categories);
+  // Build a lookup map: subCategoryId -> { categoryName, subCategoryName }
+  const subCatLookup = useMemo(() => {
+    const map: Record<string, { categoryName: string; subCategoryName: string }> = {};
+    for (const cat of ledgerCategories) {
+      for (const sub of cat.subCategories) {
+        map[sub.id] = { categoryName: cat.name, subCategoryName: sub.name };
       }
-    });
-    return result;
-  }, [transactions, categories, overrides]);
-
-  const handleOverride = useCallback((txnId: string, categoryId: string) => {
-    setOverrides(prev => {
-      const next = { ...prev, [txnId]: categoryId };
-      saveOverrides(next);
-      return next;
-    });
-  }, []);
-
-  const handleAcceptAll = useCallback(() => {
-    const allOverrides = { ...overrides };
-    transactions.forEach(t => {
-      if (!allOverrides[t.id]) {
-        allOverrides[t.id] = categorization[t.id]?.categoryId || "other";
-      }
-    });
-    setOverrides(allOverrides);
-    saveOverrides(allOverrides);
-    setDismissed(true);
-  }, [overrides, transactions, categorization]);
+    }
+    return map;
+  }, [ledgerCategories]);
 
   return (
     <div className="space-y-4">
-      {showReviewBanner && !dismissed && (
-        <CategoryReviewBanner
-          transactions={transactions}
-          categories={categories}
-          categorization={categorization}
-          overrides={overrides}
-          onAcceptAll={handleAcceptAll}
-          onOverride={handleOverride}
-          onDismiss={() => setDismissed(true)}
-        />
-      )}
-
-      <div className="glass-card rounded-lg animate-slide-in overflow-hidden">
+      <div className="glass-card rounded-lg animate-slide-in overflow-visible">
         <div className="p-5 border-b border-border/50">
           <h3 className="text-sm font-medium text-muted-foreground">Audit Feed</h3>
           <p className="text-xs text-muted-foreground/70 mt-1">{transactions.length} transactions • {transactions.filter(t => t.riskLevel !== "low").length} flagged</p>
         </div>
+
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="border-border/50 hover:bg-transparent">
-                <TableHead className="text-xs font-medium text-muted-foreground">Date</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground whitespace-nowrap">Date</TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">Vendor</TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">Category</TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">Department</TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">Risk</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground hidden lg:table-cell whitespace-nowrap">Txn ID</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground hidden sm:table-cell">Category</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground hidden md:table-cell">Sub-Category</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground hidden md:table-cell">Type</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Amount</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground hidden md:table-cell">Risk</TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {transactions.map((t) => {
                 const sc = statusConfig[t.status];
-                const catInfo = categorization[t.id];
-                const cat = getCategoryById(catInfo?.categoryId || "other", categories);
+                const resolved = t.subCategoryId ? subCatLookup[t.subCategoryId] : null;
                 return (
                   <TableRow key={t.id} className="border-border/30 hover:bg-accent/30">
-                    <TableCell className="font-mono text-xs">{t.date}</TableCell>
-                    <TableCell className="text-sm font-medium">{t.vendor}</TableCell>
-                    <TableCell>
-                      <Select value={catInfo?.categoryId || "other"} onValueChange={(val) => handleOverride(t.id, val)}>
-                        <SelectTrigger className="h-7 w-auto min-w-[120px] border-none bg-transparent p-0 text-xs gap-1 shadow-none focus:ring-0">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium" style={{ backgroundColor: cat.color + "20", color: cat.color }}>
-                            {cat.icon} {cat.label}
-                          </span>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map(c => (
-                            <SelectItem key={c.id} value={c.id} className="text-xs">
-                              <span className="flex items-center gap-1.5">
-                                <span>{c.icon}</span> {c.label}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <TableCell className="font-mono text-xs whitespace-nowrap">{t.date}</TableCell>
+                    <TableCell className="text-sm font-medium max-w-[120px] md:max-w-none truncate">{t.vendor}</TableCell>
+                    <TableCell className="font-mono text-[11px] text-muted-foreground hidden lg:table-cell max-w-[140px] truncate">
+                      {t.transactionId || "—"}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{t.department}</TableCell>
-                    <TableCell className="text-sm font-mono text-right">₹{t.amount.toLocaleString()}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {resolved ? (
+                        <Badge variant="outline" className="text-[11px] font-normal">
+                          {resolved.categoryName}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[11px] font-normal text-muted-foreground border-dashed">
+                          {t.category || "Uncategorized"}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {resolved ? (
+                        <span className="text-xs text-foreground">{resolved.subCategoryName}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {t.txnType && (
+                        <Badge variant="outline" className={`text-[10px] ${t.txnType === "CREDIT" ? "text-green-500 border-green-500/30" : "text-red-400 border-red-400/30"}`}>
+                          {t.txnType}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm font-mono text-right whitespace-nowrap">{currency}{t.amount.toLocaleString()}</TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <span className={`text-xs font-medium uppercase ${riskColors[t.riskLevel]}`}>
                         {t.riskLevel}
                       </span>
@@ -137,16 +136,7 @@ export const AuditTable = ({ categories, showReviewBanner = false, onRecategoriz
                         <Badge variant="outline" className={`text-[10px] ${sc.className}`}>
                           {sc.label}
                         </Badge>
-                        {t.statusNote && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-popover text-popover-foreground border-border">
-                              <p className="text-xs">{t.statusNote}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        {t.statusNote && <StatusNotePopover note={t.statusNote} />}
                       </div>
                     </TableCell>
                   </TableRow>

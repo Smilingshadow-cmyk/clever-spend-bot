@@ -3,7 +3,9 @@ import { Transaction, Suggestion, AuditSettings } from "./types";
 export const DEFAULT_SETTINGS: AuditSettings = {
   varianceThreshold: 50,
   duplicateWindowDays: 3,
-  unnecessaryCategories: ["Subscription"],
+  unnecessaryCategories: ["food & dining", "shopping", "entertainment"],
+  triageThreshold: 0.85,
+  geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || "",
 };
 
 export function runAudit(transactions: Transaction[], settings: AuditSettings): Transaction[] {
@@ -92,7 +94,7 @@ export function generateSuggestions(transactions: Transaction[]): Suggestion[] {
     suggestions.push({
       id: `sug-${++sugId}`,
       title: "Switch Zoom to Annual Plan",
-      description: "Switching from monthly to annual billing on Zoom saves approximately 20% — projected $240/yr savings.",
+      description: "Switching from monthly to annual billing on Zoom saves approximately 20% — projected ₹240/yr savings.",
       savingsAmount: 240,
       priority: "medium",
       vendor: "Zoom",
@@ -115,7 +117,7 @@ export function generateSuggestions(transactions: Transaction[]): Suggestion[] {
   suggestions.push({
     id: `sug-${++sugId}`,
     title: "Consolidate Overlapping Tools",
-    description: "Jira and Linear serve similar purposes. Consolidating to one project management tool could save $960/yr.",
+    description: "Jira and Linear serve similar purposes. Consolidating to one project management tool could save ₹960/yr.",
     savingsAmount: 960,
     priority: "medium",
   });
@@ -123,7 +125,7 @@ export function generateSuggestions(transactions: Transaction[]): Suggestion[] {
   suggestions.push({
     id: `sug-${++sugId}`,
     title: "Negotiate Enterprise Discounts",
-    description: "You spend $44,900+ on Cloud Infrastructure. Contacting AWS for an Enterprise Discount Program could yield 15-25% savings.",
+    description: "You spend ₹44,900+ on cloud infrastructure. Contacting AWS for an Enterprise Discount Program could yield 15-25% savings.",
     savingsAmount: 8000,
     priority: "medium",
     vendor: "AWS",

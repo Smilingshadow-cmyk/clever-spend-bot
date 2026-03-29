@@ -1,40 +1,29 @@
 import { useState, useRef } from "react";
-import { Upload, FileText, FileSpreadsheet, Download, Loader2 } from "lucide-react";
+import { Upload, FileSpreadsheet, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSpend } from "@/context/SpendContext";
 import { parseCSV, exportToCSV, downloadCSV } from "@/lib/csv-parser";
-import { pdfToCSV } from "@/utils/pdfToCSV";
 import { toast } from "@/hooks/use-toast";
 
 export function FileUpload() {
   const { importTransactions, transactions, isLoaded } = useSpend();
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingMsg, setProcessingMsg] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
+    if (!file.name.endsWith(".csv")) {
+      toast({ title: "Unsupported file", description: "Please upload a CSV file.", variant: "destructive" });
+      return;
+    }
+
     setIsProcessing(true);
     setFileName(file.name);
 
     try {
-      let csvText: string;
-
-      if (file.name.endsWith(".pdf") || file.type === "application/pdf") {
-        setProcessingMsg("Reading your PDF with AI…");
-        csvText = await pdfToCSV(file);
-      } else if (file.name.endsWith(".csv")) {
-        setProcessingMsg("Parsing CSV…");
-        csvText = await file.text();
-      } else {
-        toast({ title: "Unsupported file", description: "Please upload a CSV or PDF file.", variant: "destructive" });
-        setIsProcessing(false);
-        setFileName(null);
-        return;
-      }
-
+      const csvText = await file.text();
       const parsed = parseCSV(csvText);
 
       if (parsed.length === 0) {
@@ -51,7 +40,6 @@ export function FileUpload() {
     }
 
     setIsProcessing(false);
-    setProcessingMsg("");
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -101,7 +89,7 @@ export function FileUpload() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,.pdf,application/pdf"
+            accept=".csv"
             onChange={onFileSelect}
             className="hidden"
           />
@@ -109,19 +97,15 @@ export function FileUpload() {
           {isProcessing ? (
             <>
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground">{processingMsg || `Processing ${fileName}...`}</p>
+              <p className="text-sm text-muted-foreground">Parsing {fileName}…</p>
             </>
           ) : fileName && isLoaded ? (
             <>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                {fileName.endsWith(".csv") ? (
-                  <FileSpreadsheet className="h-5 w-5 text-primary" />
-                ) : (
-                  <FileText className="h-5 w-5 text-primary" />
-                )}
+                <FileSpreadsheet className="h-5 w-5 text-primary" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium">{fileName}</p>
+                <p className="text-sm font-medium truncate max-w-[200px]">{fileName}</p>
                 <p className="text-xs text-muted-foreground">Imported successfully · Drop another file to replace</p>
               </div>
             </>
@@ -131,8 +115,8 @@ export function FileUpload() {
                 <Upload className="h-5 w-5 text-muted-foreground" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium">Drop CSV or PDF here</p>
-                <p className="text-xs text-muted-foreground">or click to browse · PDF statements are converted with AI</p>
+                <p className="text-sm font-medium">Drop CSV here</p>
+                <p className="text-xs text-muted-foreground">or click to browse</p>
               </div>
             </>
           )}

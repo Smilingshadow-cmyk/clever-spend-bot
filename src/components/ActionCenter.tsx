@@ -8,12 +8,12 @@ const priorityStyle = {
 };
 
 export const ActionCenter = () => {
-  const { suggestions } = useSpend();
+  const { suggestions, currency } = useSpend();
 
   if (suggestions.length === 0) return null;
 
   return (
-    <div className="space-y-3 animate-slide-in">
+    <div className="space-y-3 animate-slide-in max-h-[520px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-medium text-muted-foreground">Cost Optimization Suggestions</h3>
@@ -30,7 +30,7 @@ export const ActionCenter = () => {
             </div>
             <div className="text-right shrink-0">
               <p className="text-sm font-semibold font-mono text-primary">
-                ${`₹${s.savingsAmount.toLocaleString()}`}
+                {`${currency}${s.savingsAmount.toLocaleString()}`}
               </p>
               <p className="text-[10px] text-muted-foreground uppercase">{s.priority} priority</p>
             </div>
@@ -41,7 +41,7 @@ export const ActionCenter = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Total Potential Savings</span>
           <span className="text-lg font-bold font-mono text-primary">
-            ₹{suggestions.reduce((s, sg) => s + sg.savingsAmount, 0).toLocaleString()}/yr
+            {currency}{suggestions.reduce((s, sg) => s + sg.savingsAmount, 0).toLocaleString()}/yr
           </span>
         </div>
       </div>

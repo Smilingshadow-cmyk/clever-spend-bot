@@ -80,6 +80,7 @@ export function BankConnect() {
         <p className="text-[11px] text-muted-foreground mt-2">
           Simulated bank API — loads demo transaction data for testing
         </p>
+        <p className="text-[10px] text-muted-foreground/60 mt-1">Last synced: Today 9:14 AM ✓</p>
       </CardContent>
     </Card>
   );

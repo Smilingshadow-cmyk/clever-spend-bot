@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 export const SpendChart = () => {
-  const { monthlySpend, transactions } = useSpend();
+  const { monthlySpend, transactions, currency } = useSpend();
   const [daily, setDaily] = useState(false);
 
   const dailySpend = useMemo(() => {
@@ -39,7 +39,7 @@ export const SpendChart = () => {
           />
         </div>
       </div>
-      <div className="h-[260px]">
+      <div className="h-[200px] md:h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -50,15 +50,18 @@ export const SpendChart = () => {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 20%, 18%)" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(215, 15%, 55%)" angle={daily ? -45 : 0} textAnchor={daily ? "end" : "middle"} height={daily ? 60 : 30} />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 15%, 55%)" tickFormatter={(v) => `${currency}${(v / 1000).toFixed(0)}k`} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(222, 25%, 11%)",
                 border: "1px solid hsl(222, 20%, 18%)",
                 borderRadius: "8px",
                 fontSize: 13,
+                color: "#fff",
               }}
-              formatter={(value: number) => [`₹${value.toLocaleString()}`, "Spend"]}
+              labelStyle={{ color: "hsl(215, 15%, 70%)" }}
+              itemStyle={{ color: "#fff" }}
+              formatter={(value: number) => [`${currency}${value.toLocaleString()}`, "Spend"]}
             />
             <Area type="monotone" dataKey="amount" stroke="hsl(157, 72%, 40%)" strokeWidth={2} fill="url(#spendGradient)" />
           </AreaChart>

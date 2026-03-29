@@ -29,7 +29,9 @@ export function loadCategories(): Category[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_CATEGORIES);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // Ignore and fallback
+  }
   return DEFAULT_CATEGORIES;
 }
 
@@ -41,7 +43,9 @@ export function loadOverrides(): Record<string, string> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_OVERRIDES);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // Ignore and fallback
+  }
   return {};
 }
 

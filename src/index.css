@@ -108,13 +108,117 @@
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+
+  /* ── Glassmorphism Card — Light Mode ──────────────────────── */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm;
+    background: hsl(0 0% 100% / 0.1);
+    backdrop-filter: blur(24px) saturate(1.9);
+    -webkit-backdrop-filter: blur(24px) saturate(1.9);
+    border: 1.5px solid hsl(0 0% 100% / 0.5);
+    border-top-color: hsl(0 0% 100% / 0.85);
+    border-left-color: hsl(0 0% 100% / 0.65);
+    box-shadow:
+      0 8px 32px hsl(0 0% 0% / 0.1),
+      inset 0 2px 0 hsl(0 0% 100% / 0.6),
+      inset 0 0 40px hsl(0 0% 100% / 0.06);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
   }
+  .glass-card:hover {
+    background: hsl(0 0% 100% / 0.18);
+    box-shadow:
+      0 12px 40px hsl(var(--primary) / 0.15),
+      inset 0 2px 0 hsl(0 0% 100% / 0.7),
+      inset 0 0 50px hsl(0 0% 100% / 0.1);
+    border-color: hsl(0 0% 100% / 0.75);
+  }
+
+  /* ── Glassmorphism Card — Dark Mode ──────────────────────── */
+  .dark .glass-card {
+    background: hsl(220 40% 20% / 0.08);
+    backdrop-filter: blur(24px) saturate(2);
+    -webkit-backdrop-filter: blur(24px) saturate(2);
+    border: 1.5px solid hsl(0 0% 100% / 0.1);
+    border-top-color: hsl(0 0% 100% / 0.2);
+    border-left-color: hsl(0 0% 100% / 0.14);
+    box-shadow:
+      0 8px 32px hsl(0 0% 0% / 0.4),
+      inset 0 2px 0 hsl(0 0% 100% / 0.1),
+      inset 0 0 40px hsl(0 0% 100% / 0.02);
+  }
+  .dark .glass-card:hover {
+    background: hsl(220 40% 20% / 0.15);
+    box-shadow:
+      0 12px 40px hsl(var(--primary) / 0.2),
+      inset 0 2px 0 hsl(0 0% 100% / 0.15),
+      inset 0 0 50px hsl(0 0% 100% / 0.04);
+    border-color: hsl(0 0% 100% / 0.2);
+  }
+
+  /* Elevated glass for modals / popovers */
+  .glass-card-elevated {
+    background: hsl(0 0% 100% / 0.15);
+    backdrop-filter: blur(30px) saturate(2);
+    -webkit-backdrop-filter: blur(30px) saturate(2);
+    border: 1.5px solid hsl(0 0% 100% / 0.6);
+    box-shadow:
+      0 16px 70px hsl(0 0% 0% / 0.15),
+      inset 0 2px 0 hsl(0 0% 100% / 0.6);
+  }
+  .dark .glass-card-elevated {
+    background: hsl(220 40% 20% / 0.15);
+    border-color: hsl(0 0% 100% / 0.12);
+    box-shadow:
+      0 16px 70px hsl(0 0% 0% / 0.5),
+      inset 0 2px 0 hsl(0 0% 100% / 0.12);
+  }
+
   .glow-primary {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.15);
   }
   .stat-gradient {
     @apply bg-gradient-to-br from-card to-card/60;
+  }
+}
+
+/* ── Vivid animated gradient mesh background ────────────────── */
+body {
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 90% 70% at 5% 10%, hsl(157 85% 50% / 0.50) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 80% at 95% 85%, hsl(210 100% 60% / 0.45) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 60% at 45% 45%, hsl(262 90% 65% / 0.30) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 50% at 75% 15%, hsl(38 95% 60% / 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 25% 75%, hsl(340 85% 60% / 0.18) 0%, transparent 50%);
+  animation: mesh-drift 16s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.dark body::before,
+body.dark::before {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 90% 70% at 5% 10%, hsl(157 85% 50% / 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 80% at 95% 85%, hsl(210 100% 65% / 0.30) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 60% at 45% 45%, hsl(262 90% 70% / 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 50% at 75% 15%, hsl(38 95% 60% / 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 25% 75%, hsl(340 85% 60% / 0.15) 0%, transparent 50%);
+}
+
+@keyframes mesh-drift {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.04) translate(0.5%, -0.5%);
+  }
+  100% {
+    transform: scale(1.08) translate(1.5%, -1.5%);
   }
 }
